@@ -47,19 +47,19 @@ int main()
 {
     GameState gameState = GameState::MainMenu;
 
-    switch (gameState)
-    {
-    case GameState::MainMenu:
-        doMainMenu();
-        break;
-    case GameState::Game:
-        doGame();
-        break;
-    case GameState::GameOver:
-        break;
-    case GameState::HighScores:
-        break;
-    }
+    //switch (gameState)
+    //{
+    //case GameState::MainMenu:
+    //    doMainMenu();
+    //    break;
+    //case GameState::Game:
+    //    doGame();
+    //    break;
+    //case GameState::GameOver:
+    //    break;
+    //case GameState::HighScores:
+    //    break;
+    //}
 
     return 0;
 }
