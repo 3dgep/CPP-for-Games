@@ -1,49 +1,14 @@
 #include <iostream>
-#include <string>
 
-class Entity
+struct Entity
 {
-    // Class member variables.
-    // Class member functions.
-public:
-    virtual void update(float deltaTime);
-    virtual void draw();
+    explicit Entity(int hitPoint = 100); // Parameterized constructor.
+    ~Entity();
 
-    const std::string& getName() const
-    {
-        return name;
-    }
+    Entity(const Entity& e); // Copy constructor.
 
-    void setName(const std::string& _name)
-    {
-        name = _name;
-    }
-
-protected:
-
-private:
-    std::string name;
-};
-
-void Entity::update(float deltaTime)
-{
-    std::cout << "Entity::update()" << std::endl;
-}
-
-void Entity::draw()
-{
-    std::cout << "Entity::draw()" << std::endl;
-}
-
-class Player : public Entity
-{
-public:
-    explicit Player(int _hitPoints = 100)
-        : hitPoints(_hitPoints)
-    {}
-
-    void update(float deltaTime) override;
-    void draw() override;
+    virtual void draw() const;  // immutable.
+    virtual void update(float deltaTime) = 0; // Pure virtual.
 
     int getHitPoints() const
     {
@@ -52,73 +17,76 @@ public:
 
 private:
     int hitPoints = 0;
+};
+
+Entity::Entity(int hitPoints)
+    : hitPoints(hitPoints)
+{ 
+    std::cout << "Entity::Entity(" << this->hitPoints << ")" << std::endl;
+}
+
+Entity::Entity(const Entity& e)
+    : hitPoints(e.hitPoints)
+{
+    std::cout << "Entity::Entity(const Entity& e)" << std::endl;
+}
+
+Entity::~Entity()
+{
+    std::cout << "Entity::~Entity()" << hitPoints << std::endl;
+}
+
+void Entity::draw() const
+{
+    std::cout << "Entity::draw()" << std::endl;
+}
+
+struct Player : Entity
+{
+    explicit Player(int hitPoints = 100);
+    ~Player();
+
+    void draw() const override;
+    void update(float deltaTime) override;
+
+private:
     int score = 0;
 };
 
-void Player::update(float deltaTime)
-{
-    std::cout << "Player::update()" << std::endl;
+Player::Player(int hitPoints)
+    : Entity(hitPoints)
+{ 
+    std::cout << "Player::Player( " << hitPoints << ")" << std::endl;
 }
 
-void Player::draw()
+Player::~Player()
+{
+    std::cout << "Player::~Player()" << std::endl;
+}
+
+void Player::draw() const
 {
     std::cout << "Player::draw()" << std::endl;
 }
 
-class Enemy : public Entity
+void Player::update(float deltaTime)
 {
-public:
-    void update(float deltaTime) override;
-    void draw() override;
-
-private:
-    int hitPoints;
-};
-
-void Enemy::update(float deltaTime)
-{
-    std::cout << "Enemy::update()" << std::endl;
+    score += 10;
+    std::cout << "Player::update( " << deltaTime << ")" << std::endl;
 }
 
-void Enemy::draw()
+void printHitPoints(const Entity& e)
 {
-    std::cout << "Enemy::draw()" << std::endl;
-}
-
-Entity* entities[11]{};
-
-void printHitPoints(const Player& p)
-{
-    std::cout << "p.hitPoints: " << p.getHitPoints() << std::endl;
+    std::cout << "hitPoints: " << e.getHitPoints() << std::endl;
 }
 
 int main()
 {
-    entities[0] = new Player(10);
-    for (int i = 1; i < 11; ++i)
-    {
-        entities[i] = new Enemy();
-    }
+    Player player{};
 
-    printHitPoints(Player{100});
-
-    bool isRunning = true;
-
-    while (isRunning)
-    {
-        for (Entity* e : entities)
-        {
-            e->update(0.1f);
-        }
-
-        for (Entity* e : entities)
-        {
-            e->draw();
-        }
-
-        isRunning = false;
-    }
-
-
+    Entity* e = &player;
+    e->update(0.1f);
+    e->draw();
+    
     return 0;
 }
