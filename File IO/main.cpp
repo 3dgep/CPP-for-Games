@@ -1,5 +1,7 @@
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <sstream>
 
 struct highscore
 {
@@ -26,10 +28,16 @@ int main()
         highscores << "LUC " << 2009 << std::endl;
         highscores << "SUZ " << 1978 << std::endl;
 
+        if (highscores.bad())
+        {
+            std::cerr << "ERROR: An error occurred while writing." << std::endl;
+            return 1; // An error occurred.
+        }
+
         // Close the file!
         highscores.close();
 
-        // The highscores file is automatically closed when it goes out of scope.
+        // Note: The highscores file is automatically closed when it goes out of scope.
     }
 
     // Part 2. Append some new scores to the file.
@@ -47,7 +55,7 @@ int main()
         // Close the file!
         highscores.close();
 
-        // The highscores file is automatically closed when it goes out of scope.
+        // Note: The highscores file is automatically closed when it goes out of scope.
     }
 
     // Part 3. Writing binary data to a file.
@@ -77,10 +85,13 @@ int main()
         if (highscores.bad())
         {
             std::cerr << "ERROR: Failed writing data to binary file." << std::endl;
+            return 1; // An error occurred.
         }
 
         // Close the file!
         highscores.close();
+
+        // Note: The highscores file is automatically closed when it goes out of scope.
     }
 
     // Part 4. Reading the highscores.
@@ -93,7 +104,7 @@ int main()
             return 1; // An error occurred.
         }
 
-        std::cout << "High Scores (ASCII):  " << std::endl;
+        std::cout << "High Scores (Text):  " << std::endl;
         std::string name;
         int score;
         while (highscores >> name >> score)
@@ -103,15 +114,17 @@ int main()
 
         if (highscores.bad())
         {
-            std::cerr << "ERROR: An error occured while reading the file." << std::endl;
+            std::cerr << "ERROR: An error occurred while reading the file." << std::endl;
             return 1; // An error occurred.
         }
 
         // Close the file!
         highscores.close();
 
-        // The highscores files is automatically closed when it goes out of scope.
+        // Note: The highscores files is automatically closed when it goes out of scope.
     }
+
+    std::cout << std::endl;
 
     // Part 5. Reading binary data.
     {
@@ -128,6 +141,7 @@ int main()
 
         // Allocate memory to store the highscores.
         highscore* scores = new highscore[numScores];
+
         // Read the highscores into the allocated memory.
         highscores.read(reinterpret_cast<char*>(scores), numScores * sizeof(highscore));
 
@@ -144,11 +158,63 @@ int main()
             std::cout << scores[i].name << " " << scores[i].score << std::endl;
         }
 
-        // Close the file!
+        // Delete the scores array to avoid memory leaks.
+        delete[] scores;
+
+        // Close the highscores file!
         highscores.close();
 
-        // The file will be automatically closed when it goes out of scope.
+        // Note: The file will be automatically closed when it goes out of scope.
     }
 
-    return 0; // No errors occured.
+    std::cout << std::endl;
+
+    // Part 6. Reading line-by-line.
+    {
+        std::ifstream highscores("highscores.csv");
+        if (!highscores)
+        {
+            std::cout << "ERROR: Failed to open \"highscores.csv\"" << std::endl;
+            return 1; // An error occurred.
+        }
+
+        std::cout << "High Scores (CSV):  " << std::endl;
+
+        // Read file line-by-line.
+        std::string line;
+        bool headerRow = true;
+        while (std::getline(highscores, line))
+        {
+            // Continued...
+            if (highscores.bad())
+            {
+                std::cerr << "ERROR: Failed to read file." << std::endl;
+                return 1; // An error occurred.
+            }
+
+            if (line.empty()) continue; // Skip empty lines.
+
+            // Skip the header row.
+            if (headerRow)
+            {
+                headerRow = false;
+                continue;
+            }
+
+            // Print each field of the record.
+            {
+                std::stringstream ss(line); // From sstream header.
+                std::string field;
+                // std::getline can take a delimiter to split the row into fields.
+                while (std::getline(ss, field, ','))
+                {
+                    std::cout << field << " ";
+                }
+            }
+
+            std::cout << std::endl;
+        }
+    }
+
+    return 0; // No errors occurred.
 }
