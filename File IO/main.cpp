@@ -214,6 +214,51 @@ int main()
 
             std::cout << std::endl;
         }
+
+        // Note: The file will be automatically closed when it goes out of scope.
+    }
+
+    std::cout << std::endl;
+
+    std::cout << "Checking for errors:" << std::endl;
+
+    // Part 7. Error handling.
+    {
+        std::ifstream highscores("highscores.txt");
+        if (!highscores)
+        {
+            std::cerr << "ERROR: Could not open \"highscores.txt\" for reading." << std::endl;
+            return 1; // An error occurred.
+        }
+
+        std::string name;
+        int score;
+        while (highscores >> name >> score)
+        {
+            std::cout << name << " " << score << std::endl;
+        }
+
+        if (highscores.good())
+        {
+            std::cout << "INFO: Succeeded to read the file." << std::endl;
+        }
+        else if (highscores.bad())
+        {
+            std::cerr << "ERROR: Non-recoverable error has occurred reading the file." << std::endl;
+        }
+        else if (highscores.eof())
+        {
+            std::cout << "INFO: Reached the end of the file." << std::endl;
+        }
+        else if (highscores.fail())
+        {
+            std::cerr << "ERROR: An error occurred reading the file." << std::endl;
+        }
+
+        // Don't forget to close the file.
+        highscores.close();
+
+        // Note: The file will be automatically closed when it goes out of scope.
     }
 
     return 0; // No errors occurred.
