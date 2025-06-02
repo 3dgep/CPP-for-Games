@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pointers", "Pointers\Pointe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Arrays", "Arrays\Arrays.vcxproj", "{FE9B9943-0A1E-4A80-A8B1-8289E3084124}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared Pointers", "Shared Pointers\Shared Pointers.vcxproj", "{B7243CEE-16DE-4667-BBD8-CD268157398F}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Operators", "Operators\Operators.vcxproj", "{84A0101D-D711-4382-9F77-AA9344AE498A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bitwise Operators", "Bitwise Operators\Bitwise Operators.vcxproj", "{96AE4810-3519-4B2D-AEB8-A0B47C6FCEBF}"
@@ -155,6 +157,14 @@ Global
 		{FE9B9943-0A1E-4A80-A8B1-8289E3084124}.Release|x64.Build.0 = Release|x64
 		{FE9B9943-0A1E-4A80-A8B1-8289E3084124}.Release|x86.ActiveCfg = Release|Win32
 		{FE9B9943-0A1E-4A80-A8B1-8289E3084124}.Release|x86.Build.0 = Release|Win32
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Debug|x64.ActiveCfg = Debug|x64
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Debug|x64.Build.0 = Debug|x64
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Debug|x86.ActiveCfg = Debug|Win32
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Debug|x86.Build.0 = Debug|Win32
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Release|x64.ActiveCfg = Release|x64
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Release|x64.Build.0 = Release|x64
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Release|x86.ActiveCfg = Release|Win32
+		{B7243CEE-16DE-4667-BBD8-CD268157398F}.Release|x86.Build.0 = Release|Win32
 		{84A0101D-D711-4382-9F77-AA9344AE498A}.Debug|x64.ActiveCfg = Debug|x64
 		{84A0101D-D711-4382-9F77-AA9344AE498A}.Debug|x64.Build.0 = Debug|x64
 		{84A0101D-D711-4382-9F77-AA9344AE498A}.Debug|x86.ActiveCfg = Debug|Win32
