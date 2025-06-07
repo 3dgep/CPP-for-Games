@@ -53,7 +53,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Move Semantics", "Move Sema
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "File IO", "File IO\File IO.vcxproj", "{91A63FDF-7DF4-4D0F-ACA5-6E77B10EBEC0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Error Handling", "Error Handling\Error Handling.vcxproj", "{835B50A1-DD1C-455C-8CB7-660BED324949}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Traditional Error Handling", "Traditional Error Handling\Traditional Error Handling.vcxproj", "{835B50A1-DD1C-455C-8CB7-660BED324949}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
