@@ -2,8 +2,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 #include <expected>
+#include <system_error>
 
 class Document {
 public:
@@ -58,7 +60,7 @@ namespace
         }
 
         // Write document content
-        if ( !(file << doc)) {
+        if (!(file << doc)) {
             return false;  // Failed to write content
         }
 
@@ -72,7 +74,9 @@ namespace
         ERROR_EMPTY_FILE,
         ERROR_VALIDATING_DOCUMENT,
         ERROR_PROCESSING_CONTENT,
-        ERROR_CLOSING_DOCUMENT
+        ERROR_CLOSING_DOCUMENT,
+        ERROR_INVALID_ID,
+        ERROR_DATABASE,
     };
 
 
@@ -154,43 +158,116 @@ namespace
     }
 
     // Modern C++23 version:
-    std::expected<Document, ReturnCode> processDocumentExpected(const std::string& filename) {
-        Document doc;
-        // Use a final_action to ensure the document is closed properly
-        // regardless of the outcome of the operations.
-        auto _ = finally([&]
+    std::expected<Document, ReturnCode> openDocumentExpected(const std::string& filename) {
+        std::ifstream file(filename);
+
+        if (!file) {
+            return std::unexpected(ReturnCode::ERROR_OPENING_FILE);  // Failed to open file
+        }
+
+        std::ostringstream oss;
+        oss << file.rdbuf();
+
+        if (oss.bad()) {
+            return std::unexpected(ReturnCode::ERROR_READING_FILE);  // Failed to read content
+        }
+
+        std::string contents = oss.str();
+
+        if (contents.empty()) {
+            return std::unexpected(ReturnCode::ERROR_EMPTY_FILE); // File is empty
+        }
+
+        return Document{ contents };
+    }
+
+    void demonstrateErrno() {
+#pragma warning(push)
+#pragma warning(disable : 4996) // Disable deprecated function warnings (e.g., for fopen)
+        FILE* file = fopen("nonexistent_file.txt", "r");
+        if (file == nullptr) {
+            std::cout << "Error opening file: " << std::strerror(errno) << std::endl;
+        }
+        else {
+            fclose(file);
+        }
+#pragma warning(pop)
+    }
+
+    void createDirectory(const std::string& dir)
+    {
+        std::error_code ec; // Use a local error code.
+        std::filesystem::create_directory(dir, ec);
+
+        if (ec)
         {
-            closeDocument(filename, doc);
-        });
-
-        ReturnCode result = openDocument(filename, doc);
-        if (result != ReturnCode::SUCCESS) {
-            return std::unexpected(result);  // Propagate error.
+            std::cout << "Error:    " << ec.message() << std::endl;
+            std::cout << "Category: " << ec.category().name() << std::endl;
+            std::cout << "Value:    " << ec.value() << std::endl;
         }
-
-        result = validateDocument(doc);
-        if (result != ReturnCode::SUCCESS) {
-            return std::unexpected(result);    // Propagate error.
-        }
-
-        result = processContent(doc);
-        if (result != ReturnCode::SUCCESS) {
-            return std::unexpected(result);    // Propagate error.
-        }
-
-        return doc;
     }
 
-void demonstrateErrno() {
-    FILE* file = fopen("nonexistent_file.txt", "r");
-    if (file == nullptr) {
-        std::cout << "Error opening file: " << std::strerror(errno) << std::endl;
+    bool parseInteger(const std::string& input,
+        int& result, std::string& errorMsg) {
+        try {
+            result = std::stoi(input);
+            return true;
+        }
+        catch (const std::exception& e) {
+            errorMsg = e.what();
+            return false;
+        }
     }
-    else {
+
+    class UserData
+    {
+    public:
+        UserData() = default;
+
+        explicit operator bool() const noexcept { return id > 0 && !name.empty(); }
+    private:
+        int id = 0;
+        std::string name;
+    };
+
+    ReturnCode getUserData(int userId, UserData* data) {
+        if (userId <= 0) {
+            return ReturnCode::ERROR_INVALID_ID;
+        }
+
+        // Retrieve user data
+        UserData retrievedData{}; // Simulate retrieving user data from a database.
+        if (!retrievedData /* database error */) {
+            return ReturnCode::ERROR_DATABASE;
+        }
+
+        // Populate data structure
+        *data = retrievedData;
+        return ReturnCode::SUCCESS;
+    }
+
+    using ErrorCallback = void (*)(int errorCode, const char* message);
+
+    void processFile(const char* filename, ErrorCallback onError = nullptr) {
+#pragma warning(push)
+#pragma warning(disable : 4996) // Disable deprecated function warnings (e.g., for fopen)
+        FILE* file = fopen(filename, "r");
+        if (!file) {
+            if (onError) {
+                onError(errno, std::strerror(errno));
+            }
+            return;
+        }
+
+        // Process file...
         fclose(file);
+#pragma warning(pop)
     }
-}
 
+    // Usage
+    void handleError(int code, const char* msg) {
+        std::cerr << "Error " << code << ": " << msg << std::endl;
+    }
 }
 
 int main()
@@ -238,7 +315,7 @@ int main()
         }
 
         // Modern C++23 version using std::expected
-        if (auto expectedDoc = processDocumentExpected("document.txt"))
+        if (auto expectedDoc = openDocumentExpected("document.txt"))
         {
             std::cout << "Document processed successfully with expected: " << expectedDoc.value() << std::endl;
         }
@@ -265,6 +342,34 @@ int main()
                 std::cerr << "Unknown error occurred." << std::endl;
             }
         }
+    }
+
+    // 2. Global error state
+    {
+        // This should fail since I don't have a z: drive.
+        createDirectory("Z:\\temp");
+    }
+
+    // 3. Output parameters
+    {
+        for (const auto str : { "123", "42", "-42", "3.14","21474836478", "one" })
+        {
+            int value;
+            std::string error;
+            if (parseInteger(str, value, error)) {
+                std::cout << "Value: " << value << std::endl;
+            }
+            else {
+                // Handle error
+                std::cerr << "Parse error: " << error << std::endl;
+            }
+        }
+    }
+
+    // 4. Error callback functions.
+    {
+        // in main.cpp...
+        processFile("document.doc", handleError);
     }
 
     return 0;
