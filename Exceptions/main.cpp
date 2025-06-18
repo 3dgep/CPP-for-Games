@@ -14,6 +14,23 @@ namespace
         SUCCESS,
         ERROR_DIVIDE_BY_ZERO
     };
+
+    class MyException : public std::exception
+    {
+    public:
+        MyException() noexcept
+            : std::exception("MyException")
+        {
+        }
+
+        MyException(const char* const message) noexcept
+            : std::exception(message)
+        {
+        }
+
+        ~MyException() noexcept override = default;
+    };
+
     // Traditional error handling technique.
     Result divide(int numerator, int denominator, int* result)
     {
@@ -28,6 +45,7 @@ namespace
         return Result::SUCCESS;
     }
 
+    // Using exceptions
     int divide(int numerator, int denominator)
     {
         if (denominator == 0)
@@ -66,7 +84,7 @@ namespace
     // When using standard exceptions, select the most appropriate exception type for each error condition.
     // Dynamic exception specification
     // (deprecated in C++11, removed in C++17)
-    std::vector<int> getElements(const std::vector<int>& container, size_t index, size_t count) {
+    std::vector<int> getElements(const std::vector<int>& container, size_t index, size_t count) throw(std::out_of_range, std::length_error) {  // NOLINT(modernize-use-noexcept)
         if (index >= container.size()) {
             throw std::out_of_range(std::format("Index out of range: {}", index));
         }
@@ -83,42 +101,6 @@ namespace
         return result;
     }
 }
-
-class Ratio
-{
-public:
-    Ratio(int numerator, int denominator)
-        try :
-        m_numerator{ numerator },
-        m_denominator{ denominator },
-        m_ratio{ numerator / static_cast<double>(denominator) }
-    {
-        if (denominator == 0)
-            throw std::invalid_argument("Division by zero.");
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Failed to construct Ratio: " << e.what() << std::endl;
-        // Exception is automatically rethrown.
-    }
-
-    ~Ratio() try
-    {
-        // Exceptions thrown from destructors will cause program termination.
-        //throw std::runtime_error("Failed to cleanup class...");
-    }
-    catch (const std::exception& e)
-    {
-        // The best you can hope for is logging of the error...
-        std::cerr << "Failed to destruct Ratio: " << e.what() << std::endl;
-        // Exception is automatically rethrown.
-    }
-
-private:
-    int m_numerator = 0;
-    int m_denominator = 0;
-    double m_ratio = 0.0;
-};
 
 int main()
 {
@@ -160,22 +142,6 @@ int main()
     catch (...) // Catch anything else...
     {
         std::cerr << "An unknown exception occurred." << std::endl;
-    }
-
-    // 3. Function-try blocks
-    {
-        try
-        {
-            Ratio ratio(1, 1);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            std::cerr << "Invalid argument: " << e.what() << std::endl;
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::cerr << "Runtime error: " << e.what() << std::endl;
-        }
     }
 
     // 4. Using standard exceptions.
